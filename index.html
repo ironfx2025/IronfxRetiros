@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Iron FX WebTrader</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --negro: #181c23;
+      --negro2: #10131a;
+      --rojo: #e94545;
+      --rojo-dark: #af2121;
+      --blanco: #fff;
+      --gris-claro: #eaeaea;
+      --gris2: #cfd6e1;
+      --verde: #1ecb5b;
+      --verde-btn: #19af4b;
+      --borde: #21242e;
+      --panel: #232a34;
+      --font: 'Inter', Arial, sans-serif;
+      --shadow: 0 6px 32px #000a, 0 1.5px 5px #0003;
+    }
+    html, body {
+      background: var(--negro2);
+      color: var(--blanco);
+      font-family: var(--font);
+      margin: 0; padding: 0; min-height: 100vh;
+    }
+    body {
+      background: linear-gradient(120deg, #15171d 50%, #181c23 100%);
+    }
+    .main-wrap {
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: flex-start;
+      width: 100vw;
+    }
+    .login-panel {
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      border-radius: 22px;
+      max-width: 410px;
+      margin: 56px auto 0 auto;
+      padding: 44px 34px 34px 34px;
+      position: relative;
+    }
+    h1 {
+      text-align: center;
+      color: var(--rojo);
+      letter-spacing: 3px;
+      font-weight: 900;
+      font-size: 2.2em;
+      margin-bottom: 22px; margin-top: 0;
+    }
+    .login-panel label {
+      margin-top: 13px; font-weight: 600; color: var(--gris2);
+    }
+    .login-panel input {
+      width: 100%; padding: 12px; margin: 8px 0 0 0; border-radius: 8px;
+      border: 1.2px solid #263041; background: #202635; color: var(--blanco);
+      font-size: 1.1em; font-family: var(--font);
+      transition: box-shadow .18s, border .18s;
+    }
+    .login-panel input:focus { outline:none; border:1.5px solid var(--rojo); box-shadow:0 0 0 2px #e9454533;}
+    .login-panel button {
+      width:100%; padding:13px; border-radius:9px; border:none;
+      background: linear-gradient(90deg, var(--rojo) 60%, var(--rojo-dark));
+      color: #fff; font-weight: 700; font-size: 1.2em; margin: 26px 0 0 0;
+      letter-spacing: 1.5px; cursor:pointer; transition: background .16s, box-shadow .16s;
+      box-shadow: 0 2px 10px #0006;
+    }
+    .login-panel button:hover { background:linear-gradient(90deg,#e94545 40%,#f7a440 120%);}
+    /* Header */
+    .header-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 22px 36px 18px 36px;
+      background: var(--panel);
+      border-radius: 0 0 16px 16px;
+      box-shadow: 0 6px 16px #0003;
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto 10px auto;
+    }
+    .header-bar .user {
+      font-weight: 900; color: var(--rojo); font-size: 1.15em;
+    }
+    .header-bar .balance {
+      font-size: 1.13em; font-weight: 700; background: #181c23; color: var(--verde);
+      padding: 8px 22px; border-radius: 10px; border: 1.5px solid var(--borde);
+      margin-left: 18px; font-variant-numeric: tabular-nums;
+      box-shadow: 0 2px 8px #0002;
+      letter-spacing: 1px;
+    }
+    .logout-btn {
+      background: none;
+      border: none;
+      color: var(--rojo);
+      font-weight: 700;
+      font-size: 1em;
+      margin-left: 20px;
+      cursor: pointer;
+      letter-spacing: 1px;
+      text-shadow: 0 1px 4px #0006;
+      transition: color 0.15s;
+    }
+    .logout-btn:hover { color: #fff; }
+    /* NAV */
+    .nav-main {
+      display: flex; justify-content: center; align-items: center;
+      gap: 2.2vw;
+      margin: 22px auto 14px auto;
+      width: 100%;
+      max-width: 950px;
+    }
+    .nav-btn {
+      background: none;
+      color: var(--blanco);
+      border: none;
+      border-radius: 12px;
+      padding: 13px 33px;
+      font-size: 1.15em;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: background .17s, color .18s, box-shadow 0.16s;
+      font-family: var(--font);
+      position: relative;
+    }
+    .nav-btn.active,
+    .nav-btn:focus {
+      background: linear-gradient(90deg, var(--rojo) 60%, var(--rojo-dark));
+      color: var(--blanco);
+      outline: none;
+      box-shadow: 0 2px 10px #0002;
+    }
+    .nav-btn:hover:not(.active) {
+      background: #232a3460;
+    }
+    .panel-section { display: none; }
+    .panel-section.active { display: block; }
+    .panel-content {
+      margin: 0 auto; max-width: 900px; background: #16181e; border-radius: 15px;
+      box-shadow: 0 1px 7px #0003; padding: 36px 18px 30px 18px; margin-bottom: 18px;
+    }
+    .panel-title {
+      font-size: 1.3em; font-weight: 900; color: var(--rojo); margin-bottom: 20px; text-align:center;
+    }
+    /* Historial y operaciones */
+    .table-hist {
+      width: 100%; border-collapse: collapse; margin-top: 10px;
+      background: #16181e; color: var(--blanco);
+      font-size: 1.01em; border-radius:6px; overflow:hidden;
+    }
+    .table-hist th, .table-hist td {
+      padding: 9px 7px;
+      border-bottom: 1px solid #222;
+      text-align: left;
+    }
+    .table-hist th {
+      background: #232a34;
+      color: var(--rojo);
+      text-align: left;
+      font-weight: 900;
+      letter-spacing:.5px;
+      font-size:1.05em;
+    }
+    .table-hist tr:last-child td { border-bottom: none; }
+    .no-data {
+      color: #aaa; text-align: center; margin: 18px 0 12px 0;
+    }
+    .retiro-exitoso-msg {
+      font-size: 1.4em;
+      font-weight: bold;
+      color: var(--verde);
+      text-align: center;
+      background: #111d13;
+      padding: 28px 15px;
+      border-radius: 14px;
+      margin: 34px 0 0 0;
+      border: 2px solid var(--verde);
+      box-shadow: 0 2px 8px #0004;
+      letter-spacing:1.2px;
+    }
+    .form-row-flex {
+      display: flex;
+      gap: 10px;
+    }
+    .form-row-flex input {
+      width: 100%;
+    }
+    select { color: var(--negro2);}
+    /* Responsive widgets */
+    .tvcharts-flex {
+      display: flex; flex-wrap: wrap; gap: 18px; justify-content:center;
+      margin-bottom: 18px;
+    }
+    .tvcharts-flex > div { min-width:340px; }
+    @media (max-width: 900px) {
+      .header-bar, .assets-panel { max-width:99vw; padding:0 4vw;}
+      .panel-content {max-width:99vw;}
+    }
+    @media (max-width: 650px) {
+      .header-bar, .assets-panel { padding: 0 2vw;}
+      .panel-content {padding: 14px 1vw 14px 1vw;}
+      .tvcharts-flex {flex-direction:column;align-items:center;}
+    }
+  </style>
+</head>
+<body>
+<div class="main-wrap">
+  <div class="login-panel" id="login-view">
+    <h1>IRON FX</h1>
+    <form id="login-form" autocomplete="off">
+      <label for="user">Usuario</label>
+      <input type="text" id="user" required autocomplete="username">
+      <label for="pass">Contraseña</label>
+      <input type="password" id="pass" required autocomplete="current-password">
+      <button type="submit">Ingresar</button>
+    </form>
+  </div>
+  <div id="trader-view" style="display:none;width:100vw;max-width:100vw;">
+    <div class="header-bar">
+      <span class="user" id="userbar-name"></span>
+      <span class="balance">Balance: <span id="userbar-balance"></span> USD</span>
+      <button class="logout-btn" id="logout-btn">Salir</button>
+    </div>
+    <nav class="nav-main">
+      <button class="nav-btn active" data-section="inicio">Inicio</button>
+      <button class="nav-btn" data-section="historial">Historial</button>
+      <button class="nav-btn" data-section="operaciones">Operaciones</button>
+      <button class="nav-btn" data-section="retiros">Retiros</button>
+    </nav>
+    <!-- INICIO: Gráficas reales TradingView -->
+    <section class="panel-section active" id="section-inicio">
+      <div class="panel-content">
+        <div class="panel-title">Mercados en Vivo</div>
+        <div class="tvcharts-flex">
+          <div>
+            <div class="tradingview-widget-container"><div id="tv_gold"></div></div>
+          </div>
+          <div>
+            <div class="tradingview-widget-container"><div id="tv_eurusd"></div></div>
+          </div>
+          <div>
+            <div class="tradingview-widget-container"><div id="tv_aapl"></div></div>
+          </div>
+          <div>
+            <div class="tradingview-widget-container"><div id="tv_amzn"></div></div>
+          </div>
+          <div>
+            <div class="tradingview-widget-container"><div id="tv_tsla"></div></div>
+          </div>
+          <div>
+            <div class="tradingview-widget-container"><div id="tv_meta"></div></div>
+          </div>
+          <div>
+            <div class="tradingview-widget-container"><div id="tv_usdjpy"></div></div>
+          </div>
+          <div>
+            <div class="tradingview-widget-container"><div id="tv_ethusd"></div></div>
+          </div>
+          <div>
+            <div class="tradingview-widget-container"><div id="tv_btcusd"></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- HISTORIAL -->
+    <section class="panel-section" id="section-historial">
+      <div class="panel-content">
+        <div class="panel-title">Historial</div>
+        <table class="table-hist">
+          <thead>
+            <tr>
+              <th>Fecha</th><th>Tipo</th><th>Monto</th><th>Activo</th><th>Acción</th>
+            </tr>
+          </thead>
+          <tbody id="body-historial"></tbody>
+        </table>
+        <div class="no-data" id="no-historial">No hay movimientos.</div>
+      </div>
+    </section>
+    <!-- OPERACIONES -->
+    <section class="panel-section" id="section-operaciones">
+      <div class="panel-content">
+        <div class="panel-title">Operaciones</div>
+        <table class="table-hist">
+          <thead>
+            <tr>
+              <th>Fecha</th><th>Tipo</th><th>Monto</th><th>Activo</th><th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="body-operaciones"></tbody>
+        </table>
+        <div class="no-data" id="no-operaciones">No hay operaciones abiertas.</div>
+      </div>
+    </section>
+    <!-- RETIROS -->
+    <section class="panel-section" id="section-retiros">
+      <div class="panel-content">
+        <div class="panel-title">Solicitar Retiro</div>
+        <form id="form-withdraw" autocomplete="off">
+          <label for="amount">Monto a retirar (USD)</label>
+          <input type="number" id="amount" min="1" max="2000000" required>
+          <label for="method">Método de retiro</label>
+          <select id="method" required>
+            <option value="">Seleccione uno</option>
+            <option value="tarjeta">Tarjeta de crédito/débito</option>
+            <option value="banco">Transferencia bancaria</option>
+            <option value="btc">Criptomoneda (BTC)</option>
+            <option value="eth">Criptomoneda (ETH)</option>
+            <option value="usdt">Criptomoneda (USDT)</option>
+          </select>
+          <div id="method-fields"></div>
+          <button type="submit" class="btn">Solicitar retiro</button>
+        </form>
+        <div id="retiro-exitoso" style="display:none;"></div>
+      </div>
+    </section>
+  </div>
+</div>
+<script src="https://s3.tradingview.com/tv.js"></script>
+<script>
+// ------- LOGIN Y USUARIO -------
+let account = { user: '', balance: 19750.00 };
+function updateUserbar() {
+  document.getElementById('userbar-name').textContent = `Hola, ${account.user[0].toUpperCase() + account.user.slice(1)}`;
+  document.getElementById('userbar-balance').textContent = formatUSD(account.balance);
+}
+document.getElementById('login-form').onsubmit = function(e) {
+  e.preventDefault();
+  let user = document.getElementById('user').value.trim();
+  if (!user) return;
+  account.user = user;
+  account.balance = 19750.00;
+  movimientos = [];
+  operaciones = [];
+  updateUserbar();
+  document.getElementById('login-view').style.display = 'none';
+  document.getElementById('trader-view').style.display = '';
+  renderHistorial();
+  renderOperaciones();
+  if (!window.tvChartsLoaded) { loadTVCharts(); window.tvChartsLoaded = true; }
+};
+document.getElementById('logout-btn').onclick = function() {
+  document.getElementById('trader-view').style.display = 'none';
+  document.getElementById('login-view').style.display = '';
+  document.getElementById('login-form').reset();
+};
+// ------- NAV -------
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.onclick = function() {
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.panel-section').forEach(sec=>sec.classList.remove('active'));
+    document.getElementById('section-'+btn.dataset.section).classList.add('active');
+    updateUserbar();
+    document.getElementById('retiro-exitoso').style.display = 'none';
+  }
+});
+// ------- HISTORIAL Y OPERACIONES --------
+let operaciones = [];
+let movimientos = [];
+function renderHistorial() {
+  const tbody = document.getElementById('body-historial');
+  const nodata = document.getElementById('no-historial');
+  tbody.innerHTML = '';
+  let all = [...operaciones, ...movimientos];
+  if (!all.length) {
+    nodata.style.display = '';
+    return;
+  }
+  nodata.style.display = 'none';
+  all.slice(0,40).forEach(mov => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${mov.fecha}</td><td>${mov.tipo}</td><td>${mov.monto}</td><td>${mov.activo||'-'}</td><td>${mov.estado||mov.accion||'-'}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+function renderOperaciones() {
+  const tbody = document.getElementById('body-operaciones');
+  const nodata = document.getElementById('no-operaciones');
+  tbody.innerHTML = '';
+  if (!operaciones.length) {
+    nodata.style.display = '';
+    return;
+  }
+  nodata.style.display = 'none';
+  operaciones.slice(0,40).forEach(mov => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${mov.fecha}</td><td>${mov.tipo}</td><td>${mov.monto}</td><td>${mov.activo}</td><td>${mov.estado}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+// ------- RETIROS -------
+const countries = [
+  { code: "AR", name: "Argentina", bancos: ["Banco Galicia", "Banco Nación", "Banco Santander Río", "Banco BBVA", "Banco Macro", "Banco Patagonia", "ICBC", "Banco HSBC", "Banco Supervielle"] },
+  { code: "BR", name: "Brasil", bancos: ["Banco do Brasil", "Caixa Econômica", "Bradesco", "Itaú", "Santander Brasil", "Banco Safra", "Banco Inter"] },
+  { code: "MX", name: "México", bancos: ["BBVA Bancomer", "Banamex", "Santander", "HSBC México", "Banorte", "Scotiabank", "Banco Azteca", "Inbursa"] },
+  { code: "ES", name: "España", bancos: ["Banco Santander", "BBVA", "CaixaBank", "Bankia", "Banco Sabadell", "Bankinter", "Kutxabank"] },
+  { code: "US", name: "Estados Unidos", bancos: ["Bank of America", "Chase", "Wells Fargo", "Citi", "US Bank", "PNC", "Capital One", "TD Bank"] },
+  { code: "CL", name: "Chile", bancos: ["Banco de Chile", "Banco Santander", "Banco Estado", "Banco BCI", "Banco Itaú", "Banco Security"] },
+  { code: "CO", name: "Colombia", bancos: ["Bancolombia", "Banco de Bogotá", "Davivienda", "Banco Popular", "Banco de Occidente", "BBVA Colombia"] },
+  { code: "PE", name: "Perú", bancos: ["BCP", "BBVA Perú", "Interbank", "Scotiabank Perú", "Banco Pichincha"] },
+  { code: "FR", name: "Francia", bancos: ["BNP Paribas", "Société Générale", "Crédit Agricole", "Crédit Mutuel", "La Banque Postale"] },
+  { code: "GB", name: "Reino Unido", bancos: ["HSBC", "Barclays", "Lloyds", "NatWest", "Santander UK", "TSB Bank"] },
+  { code: "DE", name: "Alemania", bancos: ["Deutsche Bank", "Commerzbank", "DZ Bank", "UniCredit Bank", "KfW"] },
+];
+function fillCountries(selectId) {
+  const countrySel = document.getElementById(selectId);
+  if (!countrySel) return;
+  countrySel.innerHTML = '<option value="">Seleccione país</option>';
+  countries.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.code;
+    opt.textContent = c.name;
+    countrySel.appendChild(opt);
+  });
+}
+function updateBanks(countrySelectId, bankFieldsId) {
+  const country = document.getElementById(countrySelectId).value;
+  const c = countries.find(c=>c.code===country);
+  const banks = c ? c.bancos : [];
+  const container = document.getElementById(bankFieldsId);
+  if (banks.length > 0) {
+    container.innerHTML = `
+      <label for="bank">Banco</label>
+      <select id="bank" required>
+        <option value="">Seleccione banco</option>
+        ${banks.map(b => `<option value="${b}">${b}</option>`).join('')}
+      </select>
+    `;
+  } else {
+    container.innerHTML = '';
+  }
+}
+document.getElementById('method').onchange = updateMethodFields;
+function updateMethodFields() {
+  const method = document.getElementById('method').value;
+  const container = document.getElementById('method-fields');
+  container.innerHTML = '';
+  if (method === 'tarjeta' || method === 'banco') {
+    container.innerHTML = `
+      <label for="country">País</label>
+      <select id="country" required></select>
+      <div id="bank-fields"></div>
+    `;
+    fillCountries('country');
+    document.getElementById('country').onchange = function() {
+      updateBanks('country', 'bank-fields');
+    };
+    if (method === 'tarjeta') {
+      container.innerHTML += `
+        <label for="card">Número de tarjeta</label>
+        <input type="text" id="card" maxlength="19" required>
+        <div class="form-row-flex">
+          <div>
+            <label for="exp">Vencimiento</label>
+            <input type="text" id="exp" placeholder="MM/AA" maxlength="5" required>
+          </div>
+          <div>
+            <label for="cvv">CVV</label>
+            <input type="text" id="cvv" maxlength="4" required>
+          </div>
+        </div>
+        <label for="name">Nombre del titular</label>
+        <input type="text" id="name" required>
+      `;
+    }
+    if (method === 'banco') {
+      container.innerHTML += `
+        <label for="account-iban">Cuenta bancaria (IBAN o similar)</label>
+        <input type="text" id="account-iban" required>
+        <label for="name">Nombre del titular</label>
+        <input type="text" id="name" required>
+      `;
+    }
+  } else if (method === 'btc' || method === 'eth' || method === 'usdt') {
+    container.innerHTML = `
+      <label for="wallet">Dirección de la billetera (${method.toUpperCase()})</label>
+      <input type="text" id="wallet" required>
+    `;
+  }
+}
+document.getElementById('form-withdraw').onsubmit = function(e) {
+  e.preventDefault();
+  const amount = parseFloat(document.getElementById('amount').value);
+  if (isNaN(amount) || amount < 1 || amount > account.balance) return;
+  account.balance -= amount;
+  updateUserbar();
+  movimientos.unshift({
+    fecha: (new Date()).toLocaleString(),
+    tipo: "Retiro",
+    monto: formatUSD(amount),
+    activo: "-",
+    accion: "Retiro exitoso"
+  });
+  renderHistorial();
+  document.getElementById('retiro-exitoso').innerHTML = `
+    <div class="retiro-exitoso-msg">
+      RETIRO EXITOSO<br>
+      Su retiro debe verse reflejado de 5 a 10 minutos en su cuenta.<br>
+      <span style="font-size:0.91em; color:#b7fcd6; display:block; margin-top:10px;">Valide que su vinculación sea correcta.</span>
+    </div>
+  `;
+  document.getElementById('retiro-exitoso').style.display = '';
+  setTimeout(()=>{ document.getElementById('retiro-exitoso').style.display = 'none'; }, 14000);
+};
+// Utils
+function formatUSD(val, sym) {
+  if(sym === "EURUSD") return "$" + Number(val).toLocaleString("en-US", {minimumFractionDigits:5,maximumFractionDigits:5});
+  if(sym === "USDJPY") return "$" + Number(val).toLocaleString("en-US", {minimumFractionDigits:3,maximumFractionDigits:3});
+  return "$" + Number(val).toLocaleString("en-US", {minimumFractionDigits:2,maximumFractionDigits:2});
+}
+// TradingView widgets
+function loadTVCharts() {
+  new TradingView.widget({
+    "width":340,"height":240,"symbol":"TVC:GOLD","interval":"15","timezone":"Etc/UTC","theme":"dark","style":"1","locale":"es","toolbar_bg":"#111","enable_publishing":false,"hide_legend":true,"save_image":false,"container_id":"tv_gold"
+  });
+  new TradingView.widget({
+    "width":340,"height":240,"symbol":"FX:EURUSD","interval":"15","timezone":"Etc/UTC","theme":"dark","style":"1","locale":"es","toolbar_bg":"#111","enable_publishing":false,"hide_legend":true,"save_image":false,"container_id":"tv_eurusd"
+  });
+  new TradingView.widget({
+    "width":340,"height":240,"symbol":"NASDAQ:AAPL","interval":"15","timezone":"Etc/UTC","theme":"dark","style":"1","locale":"es","toolbar_bg":"#111","enable_publishing":false,"hide_legend":true,"save_image":false,"container_id":"tv_aapl"
+  });
+  new TradingView.widget({
+    "width":340,"height":240,"symbol":"NASDAQ:AMZN","interval":"15","timezone":"Etc/UTC","theme":"dark","style":"1","locale":"es","toolbar_bg":"#111","enable_publishing":false,"hide_legend":true,"save_image":false,"container_id":"tv_amzn"
+  });
+  new TradingView.widget({
+    "width":340,"height":240,"symbol":"NASDAQ:TSLA","interval":"15","timezone":"Etc/UTC","theme":"dark","style":"1","locale":"es","toolbar_bg":"#111","enable_publishing":false,"hide_legend":true,"save_image":false,"container_id":"tv_tsla"
+  });
+  new TradingView.widget({
+    "width":340,"height":240,"symbol":"NASDAQ:META","interval":"15","timezone":"Etc/UTC","theme":"dark","style":"1","locale":"es","toolbar_bg":"#111","enable_publishing":false,"hide_legend":true,"save_image":false,"container_id":"tv_meta"
+  });
+  new TradingView.widget({
+    "width":340,"height":240,"symbol":"FX:USDJPY","interval":"15","timezone":"Etc/UTC","theme":"dark","style":"1","locale":"es","toolbar_bg":"#111","enable_publishing":false,"hide_legend":true,"save_image":false,"container_id":"tv_usdjpy"
+  });
+  new TradingView.widget({
+    "width":340,"height":240,"symbol":"COINBASE:ETHUSD","interval":"15","timezone":"Etc/UTC","theme":"dark","style":"1","locale":"es","toolbar_bg":"#111","enable_publishing":false,"hide_legend":true,"save_image":false,"container_id":"tv_ethusd"
+  });
+  new TradingView.widget({
+    "width":340,"height":240,"symbol":"COINBASE:BTCUSD","interval":"15","timezone":"Etc/UTC","theme":"dark","style":"1","locale":"es","toolbar_bg":"#111","enable_publishing":false,"hide_legend":true,"save_image":false,"container_id":"tv_btcusd"
+  });
+}
+</script>
+</body>
+</html>
